@@ -11,6 +11,9 @@ preferences=(
     "extensions.pocket.enabled:false"
     "browser.compactmode.show:true"
     "browser.tabs.tabmanager.enabled:false"
+    "browser.uidensity:1"
+    "dom.security.https_only_mode:true"
+    "dom.security.https_only_mode_ever_enabled:true"
 )
 
 # Check if Firefox is running
