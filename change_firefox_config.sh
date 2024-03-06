@@ -30,9 +30,28 @@ if [ -z "$PROFILE_DIR" ]; then
     exit 1
 fi
 
+# Check if user has write permissions in Firefox profile directory
+if [ ! -w "$PROFILE_DIR/user.js" ]; then
+    echo -e "${RED}${BOLD}Error: You do not have write permissions in the Firefox profile directory.${NC}"
+    exit 1
+fi
+
+# Backup existing user.js file
+BACKUP_DIR="$PROFILE_DIR/user.js.bak"
+if cp "$PROFILE_DIR/user.js" "$BACKUP_DIR"; then
+    echo -e "${GREEN}${BOLD}Backup of user.js created: $BACKUP_DIR${NC}"
+else
+    echo -e "${RED}${BOLD}Failed to create backup of user.js.${NC}"
+    exit 1
+fi
+
 # Edit the preferences in the user.js file
 for pref in "${preferences[@]}"; do
     IFS=':' read -r pref_name pref_value <<< "$pref"
     echo "user_pref(\"$pref_name\", $pref_value);" >> "$PROFILE_DIR/user.js"
-    echo -e "Preference '${GREEN}${BOLD}$pref_name${NC}' set to '${GREEN}${BOLD}$pref_value${NC}' in Firefox's ${BOLD}about:config${NC}."
+    if [ $? -eq 0 ]; then
+        echo -e "Preference '${GREEN}${BOLD}$pref_name${NC}' set to '${GREEN}${BOLD}$pref_value${NC}' in Firefox's ${BOLD}about:config${NC}."
+    else
+        echo -e "${RED}${BOLD}Failed to set preference '${pref_name}' in user.js.${NC}"
+    fi
 done
